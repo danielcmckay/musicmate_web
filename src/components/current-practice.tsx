@@ -1,11 +1,11 @@
-import { Stack, Group, Title, Badge, Card, List } from "@mantine/core";
-import { useInterval } from "@mantine/hooks";
+import { Stack, Group, Title, Badge, Button } from "@mantine/core";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
+import { PracticeSession } from "../App";
 import { Metronome, MetronomeProps } from "./metronome";
 import { PracticeCard } from "./practice-card";
 const click = require("../static/click.mp3");
 
-export const CurrentPractice = (props: { title?: string; tags?: string[] }) => {
+export const CurrentPractice = (props: { session: PracticeSession }) => {
   const [metronome, setMetronome] = useState<MetronomeProps>({
     isStarted: false,
     tempo: 60,
@@ -27,12 +27,12 @@ export const CurrentPractice = (props: { title?: string; tags?: string[] }) => {
   }, [metronome]);
 
   return (
-    <Stack style={{ padding: "25px" }}>
+    <Stack style={{ paddingLeft: "25px", paddingRight: "25px" }}>
       <Group position="apart">
         <Stack>
-          <Title>{props.title}</Title>
+          <Title>{props.session.title}</Title>
           <Group>
-            {props.tags?.map((t) => (
+            {props.session.tags?.map((t) => (
               <Badge key={t}>{t}</Badge>
             ))}
           </Group>
@@ -48,20 +48,25 @@ export const CurrentPractice = (props: { title?: string; tags?: string[] }) => {
         />
       </Group>
       <Stack style={{ overflow: "scroll" }}>
-        <PracticeCard
-          title="Warm up"
-          tags={["piece1", "piece2"]}
-          sections={[
-            { name: "Scales", content: ["3x @ 120bpm", "3x @ 150bpm"] },
-          ]}
-        />
-        <PracticeCard
-          title="Cliffs of Dover"
-          tags={["piece1", "piece2"]}
-          sections={[
-            { name: "Section 1", content: ["3x @ 120bpm", "3x @ 150bpm"] },
-          ]}
-        />
+        <Group>
+          <Button color="green">New log</Button>
+        </Group>
+
+        {props.session.logs.map((log) => {
+          return (
+            <PracticeCard
+              title={log.title}
+              tags={[]}
+              sections={log.sections}
+              updateTempo={(val: number) =>
+                setMetronome((prev) => ({
+                  tempo: val,
+                  isStarted: prev.isStarted,
+                }))
+              }
+            />
+          );
+        })}
       </Stack>
     </Stack>
   );

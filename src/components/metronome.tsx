@@ -7,7 +7,7 @@ import {
   Stack,
   Title,
 } from "@mantine/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export interface MetronomeProps {
   isStarted: Boolean;
@@ -19,7 +19,13 @@ export const Metronome = (props: {
   updateMetronome: (isOn: boolean) => void;
   metronome: MetronomeProps;
 }) => {
-  const [sliderVal, setSliderVal] = useState<number>(props.metronome.tempo);
+  const [sliderVal, setSliderVal] = useState<number>();
+
+  useEffect(() => {
+    setSliderVal(props.metronome.tempo);
+  }, [props.metronome.tempo]);
+
+  console.log(props.metronome.tempo);
 
   function setTempo(val: number) {
     setSliderVal(val);
@@ -27,8 +33,6 @@ export const Metronome = (props: {
   }
 
   function toggleMetronome() {
-    console.log(props.metronome);
-
     props.updateMetronome(!props.metronome.isStarted);
   }
 

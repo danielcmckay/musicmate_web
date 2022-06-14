@@ -7,18 +7,21 @@ import {
   Group,
   Badge,
   TextInput,
+  Code,
 } from "@mantine/core";
 import { useState } from "react";
 
 export const PracticeCard = (props: {
   title: string;
   tags: string[];
-  sections: [
-    {
-      name: string;
-      content: string[];
-    }
-  ];
+  sections: {
+    name: string;
+    content: {
+      bpm?: number;
+      description: string;
+    }[];
+  }[];
+  updateTempo?: (val: number) => void;
 }) => {
   const [editing, setEditing] = useState(false);
 
@@ -43,7 +46,30 @@ export const PracticeCard = (props: {
         <List>
           {props.sections.map(({ name, content }) => {
             return !editing ? (
-              <List.Item>{name}</List.Item>
+              <List.Item>
+                {name}
+                <List withPadding>
+                  {content.map((c) => {
+                    return (
+                      <List.Item>
+                        {c.description}
+                        {c.bpm && (
+                          <Code
+                            onClick={() => {
+                              if (props.updateTempo) {
+                                props.updateTempo(c.bpm!);
+                              }
+                            }}
+                            style={{ cursor: "pointer" }}
+                          >
+                            @ {c.bpm} bpm
+                          </Code>
+                        )}
+                      </List.Item>
+                    );
+                  })}
+                </List>
+              </List.Item>
             ) : (
               <TextInput value={name} />
             );
