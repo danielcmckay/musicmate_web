@@ -7,7 +7,6 @@ import {
   Stack,
   Title,
 } from "@mantine/core";
-import { useEffect, useState } from "react";
 
 export interface MetronomeProps {
   isStarted: Boolean;
@@ -15,44 +14,42 @@ export interface MetronomeProps {
 }
 
 export const Metronome = (props: {
-  updateTempo: (val: number) => void;
-  updateMetronome: (isOn: boolean) => void;
+  updateMetronome: (val: MetronomeProps) => void;
   metronome: MetronomeProps;
 }) => {
-  const [sliderVal, setSliderVal] = useState<number>();
-
-  useEffect(() => {
-    setSliderVal(props.metronome.tempo);
-  }, [props.metronome.tempo]);
-
-  console.log(props.metronome.tempo);
-
-  function setTempo(val: number) {
-    setSliderVal(val);
-    props.updateTempo(val);
-  }
-
-  function toggleMetronome() {
-    props.updateMetronome(!props.metronome.isStarted);
+  function updateMetronome(val: MetronomeProps) {
+    props.updateMetronome(val);
   }
 
   return (
-    <Card style={{ width: 250 }}>
+    <Card style={{ width: 400 }}>
       <Stack>
         <Center>
           <Title>{props.metronome.tempo} bpm</Title>
         </Center>
         <Group position="center">
-          <Button onClick={() => toggleMetronome()}>
+          <Button
+            onClick={() =>
+              updateMetronome({
+                isStarted: !props.metronome.isStarted,
+                tempo: props.metronome.tempo,
+              })
+            }
+          >
             {props.metronome.isStarted ? "Stop" : "Start"}
           </Button>
         </Group>
         <Slider
-          min={40}
-          max={220}
-          value={sliderVal}
-          onChange={setTempo}
-        ></Slider>
+          min={60}
+          max={150}
+          value={props.metronome.tempo}
+          onChange={(val) =>
+            updateMetronome({
+              ...props.metronome,
+              tempo: val,
+            })
+          }
+        />
       </Stack>
     </Card>
   );

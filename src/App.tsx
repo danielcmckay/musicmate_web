@@ -24,12 +24,16 @@ import {
 import { SidebarCard } from "./components/sidebar-card";
 import { fetchMockSessions } from "./mock-data";
 import { BrowserRouter as Router, Link, Routes, Route } from "react-router-dom";
+import { DatePicker } from "@mantine/dates";
+import { useLocalStorage } from "@mantine/hooks";
 
 export interface PracticeSession {
-  id: number | string;
+  id: string;
   title: string;
+  date?: Date;
   tags: string[];
   logs: {
+    id: string;
     title: string;
     sections: [
       {
@@ -45,6 +49,10 @@ export interface PracticeSession {
 
 export default function App() {
   const theme = useMantineTheme();
+  const [usesDarkTheme, setUsesDarkTheme] = useLocalStorage({
+    key: "usesDarkTheme",
+    defaultValue: false,
+  });
   const [opened, setOpened] = useState(false);
   const [asideOpened, setAsideOpened] = useState(false);
   const [selectedSession, setSelectedSession] = useState<number | undefined>();
@@ -59,23 +67,14 @@ export default function App() {
 
   return (
     <MantineProvider
-      theme={{ colorScheme: "light" }}
+      theme={{ colorScheme: usesDarkTheme ? "dark" : "light" }}
       withGlobalStyles
       withNormalizeCSS
     >
       <Router>
         <AppShell
-          styles={{
-            main: {
-              background:
-                theme.colorScheme === "dark"
-                  ? theme.colors.dark[8]
-                  : theme.colors.gray[0],
-            },
-          }}
           navbarOffsetBreakpoint="sm"
           asideOffsetBreakpoint="sm"
-          fixed
           navbar={
             <Navbar
               p="md"
@@ -118,8 +117,21 @@ export default function App() {
                 </ActionIcon>
                 {asideOpened && sessions && (
                   <Stack>
+                    <DatePicker
+                      locale="en"
+                      value={sessions[selectedSession ?? 0]?.date ?? undefined}
+                      onChange={(val) => {
+                        const found = sessions.filter(
+                          (s) => s.date?.toDateString() === val?.toDateString()
+                        )[0];
+                        setSelectedSession(
+                          found ? sessions.indexOf(found) : undefined
+                        );
+                      }}
+                    />
                     {sessions.map((session, i) => (
                       <SidebarCard
+                        key={session.id}
                         onClick={() => setSelectedSession(i)}
                         session={session}
                         selected={selectedSession === i}
@@ -154,47 +166,58 @@ export default function App() {
             </Header>
           }
         >
-          <>
-            <Routes>
-              <Route
-                path="/practice"
-                element={
-                  sessions ? (
-                    <CurrentPractice session={sessions[selectedSession ?? 0]} />
-                  ) : (
-                    <Center>
-                      <Loader />
-                    </Center>
-                  )
-                }
-              />
-              <Route
-                path="/settings"
-                element={
-                  <Stack>
-                    <Title>User settings</Title>
-                    <Switch label="Light theme" />
-                  </Stack>
-                }
-              />
-              <Route
-                path="/stats"
-                element={
-                  <Stack>
-                    <Title>User statistics</Title>
-                  </Stack>
-                }
-              />
-              <Route
-                path="/notes"
-                element={
-                  <Stack>
-                    <Title>Notes</Title>
-                  </Stack>
-                }
-              />
-            </Routes>
-          </>
+          <Routes>
+            <Route
+              path="/practice"
+              element={
+                sessions ? (
+                  <CurrentPractice session={sessions[selectedSession ?? 0]} />
+                ) : (
+                  <Center
+                    style={{
+                      background:
+                        theme.colorScheme === "dark"
+                          ? theme.colors.dark[8]
+                          : theme.colors.gray[0],
+                    }}
+                  >
+                    <Loader />
+                  </Center>
+                )
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <Stack>
+                  <Title>User settings</Title>
+                  <Switch
+                    label="Dark theme"
+                    checked={usesDarkTheme}
+                    onChange={(event) =>
+                      setUsesDarkTheme(event.currentTarget.checked)
+                    }
+                  />
+                </Stack>
+              }
+            />
+            <Route
+              path="/stats"
+              element={
+                <Stack>
+                  <Title>User statistics</Title>
+                </Stack>
+              }
+            />
+            <Route
+              path="/notes"
+              element={
+                <Stack>
+                  <Title>Notes</Title>
+                </Stack>
+              }
+            />
+          </Routes>
         </AppShell>
       </Router>
     </MantineProvider>

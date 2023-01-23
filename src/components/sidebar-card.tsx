@@ -11,14 +11,16 @@ export const SidebarCard = (props: {
       onClick={props.onClick}
       withBorder
       style={
-        props.selected ? { backgroundColor: "#d9d9d9" } : { background: "none" }
+        props.selected
+          ? { backgroundColor: "#b6a4db", color: "#000" }
+          : { background: "none" }
       }
     >
       <Stack>
         <Title order={4}>{props.session.title}</Title>
         <Group>
           {props.session.tags.map((t) => (
-            <Badge>{t}</Badge>
+            <Badge key={`sidebar-card-${t}`}>{t}</Badge>
           ))}
         </Group>
       </Stack>

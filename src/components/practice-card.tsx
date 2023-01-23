@@ -40,18 +40,20 @@ export const PracticeCard = (props: {
         </Group>
         <Group>
           {props.tags.map((t) => (
-            <Badge>{t}</Badge>
+            <Badge key={t}>{t}</Badge>
           ))}
         </Group>
         <List>
           {props.sections.map(({ name, content }) => {
             return !editing ? (
-              <List.Item>
+              <List.Item key={`${name}-${content}`}>
                 {name}
                 <List withPadding>
                   {content.map((c) => {
                     return (
-                      <List.Item>
+                      <List.Item
+                        key={`practice-content-${c.description}-${c.bpm}`}
+                      >
                         {c.description}
                         {c.bpm && (
                           <Code

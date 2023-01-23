@@ -1,4 +1,11 @@
-import { Stack, Group, Title, Badge, Button } from "@mantine/core";
+import {
+  Stack,
+  Group,
+  Title,
+  Badge,
+  Button,
+  useMantineTheme,
+} from "@mantine/core";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { PracticeSession } from "../App";
 import { Metronome, MetronomeProps } from "./metronome";
@@ -11,23 +18,29 @@ export const CurrentPractice = (props: { session: PracticeSession }) => {
     tempo: 60,
   });
   let interval: MutableRefObject<NodeJS.Timer | undefined> = useRef();
+  const theme = useMantineTheme();
 
   useEffect(() => {
     const audio = new Audio(click);
 
-    console.log(60000 / metronome.tempo);
-
     if (metronome.isStarted) {
+      interval.current = undefined;
+
       interval.current = setInterval(() => {
         audio.play();
-      }, 60000 / metronome.tempo);
+      }, 60_000 / metronome.tempo);
     } else {
       return clearInterval(interval.current);
     }
   }, [metronome]);
 
   return (
-    <Stack style={{ paddingLeft: "25px", paddingRight: "25px" }}>
+    <Stack
+      style={{
+        paddingLeft: "25px",
+        paddingRight: "25px",
+      }}
+    >
       <Group position="apart">
         <Stack>
           <Title>{props.session.title}</Title>
@@ -37,15 +50,7 @@ export const CurrentPractice = (props: { session: PracticeSession }) => {
             ))}
           </Group>
         </Stack>
-        <Metronome
-          metronome={metronome}
-          updateMetronome={(isOn: boolean) =>
-            setMetronome((prev) => ({ isStarted: isOn, tempo: prev.tempo }))
-          }
-          updateTempo={(val: number) =>
-            setMetronome((prev) => ({ tempo: val, isStarted: prev.isStarted }))
-          }
-        />
+        <Metronome metronome={metronome} updateMetronome={setMetronome} />
       </Group>
       <Stack style={{ overflow: "scroll" }}>
         <Group>
@@ -55,6 +60,7 @@ export const CurrentPractice = (props: { session: PracticeSession }) => {
         {props.session.logs.map((log) => {
           return (
             <PracticeCard
+              key={log.id}
               title={log.title}
               tags={[]}
               sections={log.sections}
